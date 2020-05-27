@@ -45,8 +45,24 @@ router.get(`/:symbol`, function (req, res, next) {
     })
 });
 
-router.get('/authed/SYMBOL', function (req, res, next) {
-    res.send('Return entries of stock searched by symbol, optionally filtered by date');
+//Retrieving One day earlier for some reason
+router.get('/authed/:symbol', function (req, res, next) {
+
+    const symbol = req.params.symbol;
+    const fromDate = Object.entries(req.query)[0][0] === "from" ? req.query.from : "invalid";
+    const toDate = Object.entries(req.query)[1][0] === "to" ? req.query.to : "invalid";
+    if((toDate || fromDate) === "invalid"){
+        res.status(400).json({ error: true, message: "Parameters allowed are from and to, example: /stocks/authed/AAL?from=2020-03-15" });
+    } else {
+        req.db.from('stocks').select("*").where(`symbol` , `${symbol}`).whereBetween('timestamp', [`${fromDate}`, `${toDate}`])
+        .then((rows) => {
+            if(rows.length === 0){
+                res.status(404).json({ error: true, message: `No entries available for query symbol for supplied date range` });
+            } else { 
+                res.status(200).json( rows );
+            }
+        })
+    }
 });
 
 module.exports = router;
