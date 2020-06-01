@@ -1,9 +1,9 @@
-var express = require('express');
-var bcrypt = require('bcrypt');
-var router = express.Router();
-var jwt = require('jsonwebtoken');
+const express = require('express');
+const bcrypt = require('bcrypt');
+const router = express.Router();
+const jwt = require('jsonwebtoken');
 
-//Registration
+//Registration route
 router.post('/register', function(req, res, next) {
   const email = req.body.email;
   const password = req.body.password;
@@ -25,10 +25,11 @@ req.db.from('users').select("*").where('email', `${email}`)
   })
   .then(() => {
     res.status(201).json({ success:true, message: "User created" })
+    console.log("New user created", email);
   })  
 })
 
-//Login
+//Login route
 router.post('/login', function(req, res, next) {
 const email = req.body.email;
 const password = req.body.password;
@@ -42,6 +43,7 @@ req.db.from('users').select("*").where('email', `${email}`)
   .then((users) => {
     if(users.length === 0) {
       res.status(401).json({"error": true, "message": "Incorrect email or password"})
+      console.log("Incorrect credentials login", email);
       return;
     }
 
@@ -51,6 +53,7 @@ req.db.from('users').select("*").where('email', `${email}`)
   .then((match) => {
     if(!match) {
       res.status(401).json({"error": true, "message": "Incorrect email or password"})
+      console.log("Incorrect credentials login", email);
       return;
     }
     const APIKEY = process.env.APIKEY;
@@ -58,6 +61,8 @@ req.db.from('users').select("*").where('email', `${email}`)
     const exp = Math.floor(Date.now() / 1000) + expire_in;
     const token = jwt.sign({ email, exp }, APIKEY);
     res.json({ token: token, token_type: "Bearer", expires_in: expire_in })
+    console.log("User logged in ", email);
+
   }) 
 
 })
