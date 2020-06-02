@@ -10,6 +10,7 @@ router.post('/register', function(req, res, next) {
   
   if(!email || !password){
     res.status(400).json({ error:true, message: "Request body incomplete - email and password needed" })
+    res.end();
     return;
   }
 
@@ -17,6 +18,7 @@ req.db.from('users').select("*").where('email', `${email}`)
   .then((users) => {
     if(users.length > 0) {
       res.status(409).json({ error:true, message: "User already exists!" })
+      res.end();
       return;
     }  
     const saltRounds = 10;
@@ -25,6 +27,7 @@ req.db.from('users').select("*").where('email', `${email}`)
   })
   .then(() => {
     res.status(201).json({ success:true, message: "User created" })
+    res.end();
     console.log("New user created", email);
   })  
 })
@@ -43,6 +46,7 @@ req.db.from('users').select("*").where('email', `${email}`)
   .then((users) => {
     if(users.length === 0) {
       res.status(401).json({"error": true, "message": "Incorrect email or password"})
+      res.end();
       console.log("Incorrect credentials login", email);
       return;
     }
@@ -53,6 +57,7 @@ req.db.from('users').select("*").where('email', `${email}`)
   .then((match) => {
     if(!match) {
       res.status(401).json({"error": true, "message": "Incorrect email or password"})
+      res.end();
       console.log("Incorrect credentials login", email);
       return;
     }
