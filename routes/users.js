@@ -63,7 +63,7 @@ req.db.from('users').select("*").where('email', `${email}`)
     }
     const APIKEY = process.env.APIKEY;
     const expire_in = 60 * 60 * 24;
-    const exp = Math.floor(Date.now() / 1000) + expire_in;
+    const exp = Date.now() + expire_in * 1000;
     const token = jwt.sign({ email, exp }, APIKEY);
     res.json({ token: token, token_type: "Bearer", expires_in: expire_in })
     console.log("User logged in ", email);
