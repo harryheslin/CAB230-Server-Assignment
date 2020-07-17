@@ -16,8 +16,8 @@ const authorize = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.APIKEY)
-        if(decoded.exp > Date.now()) {
-            res.status(403).json({ error: true, message: "Authorization header not found" });
+       if(decoded.exp < Date.now()) {
+            res.status(403).json({ error: true, message: "Token has expired" });
             return; 
         }
         next()
